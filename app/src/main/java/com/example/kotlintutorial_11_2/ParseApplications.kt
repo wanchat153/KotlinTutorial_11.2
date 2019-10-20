@@ -1,16 +1,16 @@
 package com.example.kotlintutorial_11_2
 
-import android.util.Log
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.lang.Exception
 
+private const val TAG = "ParseApplications"
+
 class ParseApplications {
-    private val TAG = "ParseApplications"
     val applications = ArrayList<FeedEntry>()
 
     fun parse(xmlData: String): Boolean {
-        Log.d(TAG, "parse called with $xmlData")
+        //Log.d(TAG, "parse called with $xmlData")
         var status = true
         var inEntry = false
         var textValue = ""

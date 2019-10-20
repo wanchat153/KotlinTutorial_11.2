@@ -1,13 +1,10 @@
 package com.example.kotlintutorial_11_2
 
-import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
-import android.widget.ListView
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
-import kotlin.properties.Delegates
 
 private const val TAG = "DownloadData"
 
@@ -29,8 +26,6 @@ class DownloadData(private val callBack: DownloaderCallBack) : AsyncTask<String,
 
 //                val arrayAdapter = ArrayAdapter<FeedEntry>(propContext, R.layout.list_item, parseApplications.applications)
 //                propListView.adapter = arrayAdapter
-
-    }
 
     override fun doInBackground(vararg url: String): String {
         Log.d(TAG, "doInBackground: stars with ${url[0]}")
