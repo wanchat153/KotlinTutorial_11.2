@@ -1,17 +1,14 @@
 package com.example.kotlintutorial_11_2
 
-import android.content.Context
-import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ListView
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.activity_main.*
-import java.net.URL
-import kotlin.properties.Delegates
 
 class FeedEntry {
     var name: String = ""
@@ -19,26 +16,18 @@ class FeedEntry {
     var releaseDate: String = ""
     var summary: String = ""
     var imageURL: String = ""
-
-    override fun toString(): String {
-        return """"
-            name = $name
-            artist = $artist
-            releaseDate = $releaseDate
-            imageURL = $imageURL
-        """.trimIndent()
-    }
 }
+
+private const val TAG = "MainActivity"
+private const val STATE_URL = "feedUrl"
+private const val STATE_LIMIT = "feedLimit"
 
 class MainActivity : AppCompatActivity() {
 
-    private val TAG = "MainActivity"
-
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
     private var feedLimit = 10
+    private val feedViewModel: FeedViewModel by lazy { ViewModelProviders.of(this).get(FeedViewModel::class.java) }
 
-    private val STATE_URL = "feedUrl"
-    private val STATE_LIMIT = "feedLimit"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,11 +35,20 @@ class MainActivity : AppCompatActivity() {
 
         Log.d(TAG, "onCreate called")
 
+        val feedAdapter = FeedAdapter(this, R.layout.list_record, EMPTY_FEED_LIST)
+        xmlListView.adapter = feedAdapter
+
         if (savedInstanceState != null){
             feedUrl = savedInstanceState.getString(STATE_URL).toString()
             feedLimit = savedInstanceState.getInt(STATE_LIMIT)
         }
-        downloadUrl(feedUrl.format(feedLimit))
+
+        feedViewModel.feedEntries.observe(this,
+            Observer<List<FeedEntry>> { feedEntries -> feedAdapter.setFeedList(feedEntries ?: EMPTY_FEED_LIST) })
+//        feedViewModel.feedEntries.observe(this,
+//                Observer<List<FeedEntry>> { feedEntries -> feedAdapter.setFeedList(feedEntries!!) })
+
+        feedViewModel.downloadUrl(feedUrl.format(feedLimit))
         Log.d(TAG, "onCreate: done")
     }
 
@@ -84,12 +82,12 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "onOptionsItemSelected: ${item.title} setting feedLimit unchanged")
                 }
             }
-            R.id.mnuRefresh -> feedCachedUrl = "INVALIDATED"
+            R.id.mnuRefresh -> feedViewModel.invalidate()
             else ->
                 return super.onOptionsItemSelected(item)
         }
 
-        downloadUrl(feedUrl.format(feedLimit))
+        feedViewModel.downloadUrl(feedUrl.format(feedLimit))
         return true
     }
 
