@@ -11,7 +11,7 @@ import kotlin.properties.Delegates
 
 private const val TAG = "DownloadData"
 
-private class DownloadData(private val callBack: DownloaderCallBack) : AsyncTask<String, Void, String>() {
+class DownloadData(private val callBack: DownloaderCallBack) : AsyncTask<String, Void, String>() {
 
     interface DownloaderCallBack {
         fun onDataAvailable(data: List<FeedEntry>)
